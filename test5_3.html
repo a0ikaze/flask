@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+  <meta charset="UTF-8">
+  <title>天气查询</title>
+  <script src="https://cdn.jsdelivr.net/npm/vue@2.6.14"></script>
+  <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+  <style>
+    body { font-family: Arial, sans-serif; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; }
+    .container { width: 100%; max-width: 500px; padding: 20px; box-shadow: 0 0 15px rgba(0,0,0,0.2); border-radius: 8px; text-align: center; background-color: #f5f5f5; }
+    h2 { color: #333; }
+    .weather-info { margin-top: 20px; padding: 20px; background-color: #fff; border-radius: 8px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
+    .weather-info p { margin: 8px 0; font-size: 18px; }
+    .weather-info .highlight { font-weight: bold; color: #FF6500; }
+  </style>
+</head>
+<body>
+
+<div id="app" class="container">
+  <h2>北京实时天气</h2>
+
+  <div v-if="weather" class="weather-info">
+    <p><strong>更新时间:</strong> {{ weather.updateTime }}</p>
+    <p><strong>天气状况:</strong> {{ weather.now.text }} <img :src="iconUrl" alt="weather icon"></p>
+    <p><strong>温度:</strong> {{ weather.now.temp }} °C</p>
+    <p><strong>体感温度:</strong> {{ weather.now.feelsLike }} °C</p>
+    <p><strong>风向:</strong> {{ weather.now.windDir }} ({{ weather.now.windSpeed }} km/h)</p>
+    <p><strong>湿度:</strong> {{ weather.now.humidity }}%</p>
+    <p><strong>气压:</strong> {{ weather.now.pressure }} hPa</p>
+    <p><strong>能见度:</strong> {{ weather.now.vis }} km</p>
+  </div>
+</div>
+
+<script>
+  new Vue({
+    el: "#app",
+    data: {
+      weather: null,
+      apiUrl: "https://devapi.qweather.com/v7/weather/now?location=101010100&key=ba26e75ac2084c238cd0afbc35f41d5e"
+    },
+    computed: {
+      iconUrl() {
+        return `https://icons.qweather.com/${this.weather.now.icon}.png`;
+      }
+    },
+    mounted() {
+      this.getWeather();
+    },
+    methods: {
+      getWeather() {
+        axios.get(this.apiUrl)
+          .then(response => {
+            if (response.data.code === "200") {
+              this.weather = response.data;
+            } else {
+              alert("获取天气数据失败，错误代码：" + response.data.code);
+            }
+          })
+          .catch(error => {
+            console.error("Error fetching weather data:", error);
+            alert("无法获取天气信息，请检查网络连接");
+          });
+      }
+    }
+  });
+</script>
+
+</body>
+</html>
